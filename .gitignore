@@ -1,0 +1,5 @@
+# configure
+.idea/
+
+# annoying file
+.DS_Store
