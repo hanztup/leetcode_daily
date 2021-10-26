@@ -47,4 +47,68 @@ class Solution(object):
         :type nums2: List[int]
         :rtype: float
         """
+        
+        '''
+        解法一
+        -思路：
+          * 二分法，由于时间复杂度要求为O(logn)，表示这道题需要使用二分法来完成。难点在于：如何二分？
+          * 参考了答案的思路:https://leetcode-cn.com/problems/median-of-two-sorted-arrays/solution/xun-zhao-liang-ge-you-xu-shu-zu-de-zhong-wei-s-114/
+          * 将题目转换为"求两个有序数组的第k小的数"，大体思路上，每次比较A[k//2-1]和B[k//2-1]，可以排除大约k/2的数
+          * 实现上有两点需要注意：
+                * 实现思路为：
+                    * （1）确定k
+                    * （2）比较A[k//2-1]和B[k//2-1]
+                    * （3）更新下一次k，转回步骤（2）
+                    * 因此使用了递归
+                * 遇到[k//2 - 1]大于某个数组的长度时，需要注意此时排除的数量并非k//2，而应该按照实际排除的数量来更新k（对应line 93）
+        -时间复杂度: O(logn)
+        -空间复杂度: O(n)，这里的实现还不太完善，因为每次在更新列表的时候会重新开辟内存，因此开辟内存空间的次数和比较的次数一致
+        '''
+
+        def find_smallest_k(A, B, k):
+            if (not A) and (not B):
+                # A和B均为空
+                return 0
+
+            if not A:
+                # 仅A为空
+                return B[k-1]
+
+            if not B:
+                # 仅B为空
+                return A[k-1]
+
+            if k == 1:
+                return min(A[k-1], B[k-1])
+
+            com_index = k // 2 - 1
+            if com_index >= min(len(A), len(B)):
+                com_index = min(len(A), len(B)) - 1
+
+            if A[com_index] <= B[com_index]:
+                A = A[com_index+1:]
+            else:
+                B = B[com_index+1:]
+            return find_smallest_k(A, B, k - com_index - 1)  # 更新k：需要按照实际减少的数量，而非k//2
+
+        total_len = len(nums1) + len(nums2)
+
+        if total_len % 2 == 0:
+            k1 = find_smallest_k(nums1, nums2, total_len // 2 + 1)
+            k2 = find_smallest_k(nums1, nums2, total_len // 2)
+        else:
+            k1 = find_smallest_k(nums1, nums2, total_len // 2 + 1)
+            k2 = k1
+
+        return float(k1 + k2) / 2
+
+
+if __name__ == '__main__':
+    s = Solution()
+    ret = s.findMedianSortedArrays(nums1=[], nums2=[3])
+    print(ret)
+
+
+
+
 
